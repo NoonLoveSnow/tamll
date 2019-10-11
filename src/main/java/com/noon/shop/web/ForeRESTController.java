@@ -5,6 +5,7 @@ import com.noon.shop.pojo.*;
 import com.noon.shop.service.*;
 import com.noon.shop.util.Result;
 import org.apache.commons.lang.math.RandomUtils;
+import org.hibernate.query.criteria.internal.OrderImpl;
 import org.hibernate.sql.ordering.antlr.OrderingSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -132,16 +133,19 @@ return  buyoneAndAddCart(pid,num,session);
     }
     @GetMapping("forebuy")
     public Object forebuy(int[] oiid , HttpSession session){
+        User user=(User)session.getAttribute("user");
         float total=0;
         List<OrderItem> ois=new ArrayList<>();
         for (int id:oiid
              ) {
             OrderItem orderItem=orderItemService.get(id);
+            if (orderItem==null||orderItem.getUser().getId()!=user.getId())//为安全起见，订单不属于本人，则失败
+                return Result.fail("非法操作");
             total+=orderItem.getProduct().getPromotePrice()*orderItem.getNumber();
             ois.add(orderItem);
         }
         imageService.setFirstProdutImagesOnOrderItems(ois);
-       session.setAttribute("orderItems", ois);
+        session.setAttribute("orderItems", ois);  //在购物车购买，就需要将选中的订单项存入session，结算时确定总金额
         Map<String,Object> map=new HashMap<>();
         map.put("orderItems",ois);
         map.put("total",total);
@@ -192,6 +196,11 @@ return  buyoneAndAddCart(pid,num,session);
     }
     @GetMapping("foredeleteOrderItem")
     public Object deleteOrderItem(int oiid,HttpSession session){
+        User user=(User)session.getAttribute("user");
+        OrderItem orderItem = orderItemService.get(oiid);
+        if(orderItem==null||orderItem.getUser().getId()!=user.getId()
+        ||orderItem.getOrder()!=null)//当前订单项不属于本人，或者已经支付了，则操作失败
+            return  Result.fail("非法操作");
         orderItemService.delete(oiid);
         return Result.success();
     }
@@ -211,7 +220,7 @@ return  buyoneAndAddCart(pid,num,session);
     return Result.success(map);
     }
     @GetMapping("forepayed")
-    public Object payed(int oid){
+    public Object payed(int oid){ //假装支付
         Order order=orderService.get(oid);
         order.setStatus(OrderService.waitDelivery);
         order.setPayDate(new Date());
@@ -223,16 +232,70 @@ return  buyoneAndAddCart(pid,num,session);
         User user=(User) session.getAttribute("user");
         List<Order> os=orderService.listOrderWithoutDelete(user);
         orderItemService.fill(os);
-        orderService.removeOrderFromOrderItem(os);
+       // orderService.removeOrderFromOrderItem(os);
         return  os;
     }
     @GetMapping("foreconfirmPay")
-    public Object confirmPay(int oid) {
+    public Object confirmPay(int oid,HttpSession session) {
+        Order order = orderService.get(oid);
+        User user=(User)session.getAttribute("user");
+        if (order==null||order.getUser().getId()!=user.getId()||!order.getStatus().equals(OrderService.waitConfirm))
+            return Result.fail("非法操作");//不属于本人订单,订单状态不是待确认收货,则不允许查看
+        orderItemService.fill(order);
+        orderService.calculaAndSetTotalPrice(order);
+        orderService.removeOrderFromOrderItem(order);
+        System.out.println(order);
+        return order;
+    }
+@GetMapping("foreorderConfirmed")
+    public  Object orderConfirmed(int oid,HttpSession session){
+    User user=(User)session.getAttribute("user");
+        Order order = orderService.get(oid);
+    if (order==null||order.getUser().getId()!=user.getId()||!order.getStatus().equals(OrderService.waitConfirm))
+        return Result.fail("非法操作");//不属于本人订单,订单状态不是待确认收货,则不允许修改
+    order.setConfirmDate(new Date());
+    order.setStatus(OrderService.waitReview);
+    orderService.update(order);
+    return Result.success();
+}
+    @PutMapping("foredeleteOrder")
+    public  Object deleteOrder(int oid,HttpSession session){
+        User user=(User)session.getAttribute("user");
+        Order order = orderService.get(oid);
+        if (order==null||order.getUser().getId()!=user.getId())
+            return Result.fail("非法操作");//不属于本人订单,则不允许修改
+        order.setStatus(OrderService.delete);
+        orderService.update(order);
+        return Result.success();
+    }
+    @GetMapping("forereview")
+    public Object review(int oid) {
         Order o = orderService.get(oid);
         orderItemService.fill(o);
-        orderService.calculaAndSetTotalPrice(o);
         orderService.removeOrderFromOrderItem(o);
-        return o;
+        Product p = o.getOrderItems().get(0).getProduct();
+        List<Review> reviews = reviewService.list(p);
+        productService.setReviewAndSaleCount(p);
+        Map<String,Object> map = new HashMap<>();
+        map.put("p", p);
+        map.put("o", o);
+        map.put("reviews", reviews);
+
+        return Result.success(map);
     }
 
+    @PostMapping("foredoreview")
+    public Object doreview( HttpSession session,int oid,int pid,String content) {
+        Order o = orderService.get(oid);
+         List<OrderItem> ois=orderItemService.listByOrder(o);
+        Product p = productService.get(pid);
+        User user =(User)  session.getAttribute("user");
+        Review review = new Review();
+        review.setContent(content);
+        review.setProduct(p);
+        review.setCreateDate(new Date());
+        review.setUser(user);
+        reviewService.add(review);
+        return Result.success();
+    }
 }
