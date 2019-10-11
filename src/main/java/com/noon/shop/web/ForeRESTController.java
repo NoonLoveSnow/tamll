@@ -5,15 +5,11 @@ import com.noon.shop.pojo.*;
 import com.noon.shop.service.*;
 import com.noon.shop.util.Result;
 import org.apache.commons.lang.math.RandomUtils;
-import org.hibernate.sql.ordering.antlr.OrderingSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.net.ssl.HttpsURLConnection;
 import javax.servlet.http.HttpSession;
-import java.awt.*;
 import java.util.*;
-import java.util.List;
 
 @RestController
 public class ForeRESTController {
