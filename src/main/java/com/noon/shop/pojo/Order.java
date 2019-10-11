@@ -206,5 +206,26 @@ public class Order {
         this.totalNumber = totalNumber;
     }
 
-
+    @Override
+    public String toString() {
+        return "Order{" +
+                "id=" + id +
+                ", user=" + user +
+                ", orderCode='" + orderCode + '\'' +
+                ", address='" + address + '\'' +
+                ", post='" + post + '\'' +
+                ", receiver='" + receiver + '\'' +
+                ", mobile='" + mobile + '\'' +
+                ", userMessage='" + userMessage + '\'' +
+                ", createDate=" + createDate +
+                ", payDate=" + payDate +
+                ", deliveryDate=" + deliveryDate +
+                ", confirmDate=" + confirmDate +
+                ", status='" + status + '\'' +
+                ", orderItems=" + orderItems +
+                ", total=" + total +
+                ", totalNumber=" + totalNumber +
+                ", statusDesc='" + statusDesc + '\'' +
+                '}';
+    }
 }
