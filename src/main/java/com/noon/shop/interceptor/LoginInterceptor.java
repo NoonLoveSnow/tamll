@@ -37,16 +37,16 @@ public class LoginInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
         HttpSession session=request.getSession();
-        User u=new User();
+      /*  User u=new User();
         u.setId(2);
         u.setName("noon");
-        session.setAttribute("user",u);
+        session.setAttribute("user",u);*/
         String contextPath=session.getServletContext().getContextPath();
-       // System.out.println("contextPath:"+contextPath);
+
         String uri=request.getRequestURI();
-      //  System.out.println("uri:"+uri);
+
         String page= StringUtils.remove(uri,contextPath+"/");
-       // System.out.println("page:"+page);
+
 
         for (String requiredAuthPage:requiredAuthPages
              ) {
