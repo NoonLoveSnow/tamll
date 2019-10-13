@@ -255,7 +255,7 @@ public class ForeRESTController {
             return Result.fail("非法操作");//不属于本人订单,订单状态不是待确认收货,则不允许查看
         orderItemService.fill(order);
         orderService.calculaAndSetTotalPrice(order);
-       // orderService.removeOrderFromOrderItem(order);
+        // orderService.removeOrderFromOrderItem(order);
         System.out.println(order);
         return order;
     }
@@ -287,7 +287,7 @@ public class ForeRESTController {
     public Object review(int oid) {
         Order o = orderService.get(oid);
         orderItemService.fill(o);
-       // orderService.removeOrderFromOrderItem(o);
+        // orderService.removeOrderFromOrderItem(o);
         Product p = o.getOrderItems().get(0).getProduct();
         List<Review> reviews = reviewService.list(p);
         productService.setReviewAndSaleCount(p);
