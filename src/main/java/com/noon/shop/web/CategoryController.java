@@ -1,7 +1,9 @@
 package com.noon.shop.web;
 
 import com.noon.shop.pojo.Category;
+import com.noon.shop.pojo.ProductImage;
 import com.noon.shop.service.CategoryService;
+import com.noon.shop.service.ProductImageService;
 import com.noon.shop.util.ImageUtil;
 import com.noon.shop.util.Page4Navigator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +19,11 @@ import java.io.File;
 public class CategoryController {
     @Autowired
     CategoryService categoryService;
+
     @GetMapping("/categories")
     public Page4Navigator list(@RequestParam(defaultValue = "0") int start, @RequestParam(defaultValue = "5") int size){
         Page4Navigator page4Navigator=categoryService.list(start,size,7);
+
         return page4Navigator;
     }
     @PostMapping("/categories")

@@ -12,10 +12,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class MyWebMvcConfigurer implements WebMvcConfigurer {
    @Autowired
     OtherInterceptor otherInterceptor;
-
+    String[] exclude = new String[] {"/js/**","/img/**","/css/**","/webapp/**"};
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-       registry.addInterceptor(otherInterceptor).addPathPatterns("/**");
-        registry.addInterceptor(new LoginInterceptor()).addPathPatterns("/**");
+       registry.addInterceptor(otherInterceptor).addPathPatterns("/**").excludePathPatterns(exclude);
+        registry.addInterceptor(new LoginInterceptor()).addPathPatterns("/**").excludePathPatterns(exclude);
     }
 }

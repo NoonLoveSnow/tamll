@@ -1,15 +1,20 @@
 package com.noon.shop.web;
 
 import com.noon.shop.pojo.Product;
+import com.noon.shop.service.ProductImageService;
 import com.noon.shop.service.ProductService;
 import com.noon.shop.util.Page4Navigator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class ProductContrller {
     @Autowired
     ProductService productService;
+    @Autowired
+    ProductImageService productImageService;
+
     @GetMapping("/products/{id}")
     public Object get(@PathVariable("id") int id){
         return productService.get(id);
@@ -17,7 +22,12 @@ public class ProductContrller {
     @GetMapping("/categories/{cid}/products")
     public Page4Navigator list(@PathVariable("cid")int cid, @RequestParam(defaultValue = "0") int start,@RequestParam(defaultValue = "5") int size) throws Exception{
         start = start<0?0:start;
-        return productService.list(cid,start,size,7);
+
+
+       Page4Navigator page4Navigator=productService.list(cid, start, size, 7);
+
+
+        return page4Navigator;
     }
     @DeleteMapping("/products/{id}")
     public String delete(@PathVariable("id")int id) throws Exception{
