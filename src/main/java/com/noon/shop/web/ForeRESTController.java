@@ -5,9 +5,12 @@ import com.noon.shop.pojo.*;
 import com.noon.shop.service.*;
 import com.noon.shop.util.Result;
 import org.apache.commons.lang.math.RandomUtils;
+import org.apache.shiro.crypto.SecureRandomNumberGenerator;
+import org.apache.shiro.crypto.hash.SimpleHash;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
+import sun.security.util.Password;
 
 import javax.servlet.http.HttpSession;
 import java.util.*;
@@ -49,6 +52,9 @@ public class ForeRESTController {
             String message = "用户名已经被使用，换一个注册吧";
             return Result.fail(message);
         }
+
+        String salt=new SecureRandomNumberGenerator().nextBytes().toString();
+         String encodedPassword=new SimpleHash("md5", password ,salt,2);
         userService.add(user);
         return Result.success();
     }
