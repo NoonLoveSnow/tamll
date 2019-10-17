@@ -24,13 +24,13 @@
         },
         methods:{
             getCategory:function (cid) {
-                axios.get("/categories/"+cid).then(function (response) {
+                axios.get("categories/"+cid).then(function (response) {
                     vue.category=response.data;
                 });
             },
             list:function (startPage) {
                 var p=this;
-                axios.get("/categories/"+cid+"/properties?start="+startPage).then(function (response) {
+                axios.get("categories/"+cid+"/properties?start="+startPage).then(function (response) {
                     vue.pagination = response.data;
                     vue.beans = vue.pagination.content   ;
                 });
