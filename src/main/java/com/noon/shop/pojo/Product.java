@@ -2,6 +2,9 @@ package com.noon.shop.pojo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Fetch;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -10,12 +13,15 @@ import java.util.List;
 @Entity
 @Table(name = "product")
 @JsonIgnoreProperties({"handler", "hibernateLazyInitializer"})
+@Document(indexName = "tmall_springboot",type = "product")
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     int id;
+    @Field(type = FieldType.Text,analyzer = "ik_max_word",searchAnalyzer = "ik_max_word")
     String name;
+    @Field(type = FieldType.Text,analyzer = "ik_max_word",searchAnalyzer = "ik_max_word")
     String subTitle;
     Float originalPrice;
     Float promotePrice;
@@ -29,6 +35,7 @@ public class Product {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cid")
+
     Category category;
 
     @Transient
