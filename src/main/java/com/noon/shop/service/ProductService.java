@@ -1,8 +1,5 @@
 package com.noon.shop.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.ReferenceType;
 import com.noon.shop.dao.ProductDAO;
 import com.noon.shop.pojo.Category;
 import com.noon.shop.pojo.Product;
@@ -13,11 +10,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -75,6 +70,7 @@ public class ProductService {
 
         String pageStr = stringRedisTemplate.opsForValue().get("products:cid" + cid + "-page" + start + "-size" + size);
 
+
         if (pageStr == null) {
             Pageable pageable = PageRequest.of(start, size, Sort.Direction.DESC, "id");
             Page page = productDAO.findByCategory(category, pageable);
@@ -83,10 +79,13 @@ public class ProductService {
             pageStr = JsonUtils.obj2String(page4Navigator);
             stringRedisTemplate.opsForValue().set("products:cid" + cid + "-page" + start + "-size" + size, pageStr);
         } else {
+
+
             page4Navigator = JsonUtils.string2Obj(pageStr, Page4Navigator.class);
-            List<Product> products =  JsonUtils.linkedHashMap2List(page4Navigator.getContent(),Product.class);
+            List<Product> products = JsonUtils.linkedHashMap2List(page4Navigator.getContent(), Product.class);
             page4Navigator.setContent(products);
         }
+
 
         return page4Navigator;
 }

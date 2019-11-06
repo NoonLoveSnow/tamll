@@ -27,7 +27,7 @@ public class Product {
     @Transient
     ProductImage firstProductImage;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "cid")
     Category category;
 

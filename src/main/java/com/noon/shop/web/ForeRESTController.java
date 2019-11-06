@@ -39,7 +39,7 @@ public class ForeRESTController {
         List<Category> cs = categoryService.list();
         productService.fill(cs);
         productService.fillByRow(cs);
-        categoryService.removeCategoryFromProduct(cs);
+       // categoryService.removeCategoryFromProduct(cs);
         return cs;
     }
 
@@ -52,11 +52,12 @@ public class ForeRESTController {
             String message = "用户名已经被使用，换一个注册吧";
             return Result.fail(message);
         }
-
         String salt=new SecureRandomNumberGenerator().nextBytes().toString();
-         String encodedPassword=new SimpleHash("md5", password ,salt,2);
-        userService.add(user);
-        return Result.success();
+         String encodedPassword=new SimpleHash("md5", password ,salt,2).toString();
+         user.setPassword(encodedPassword);
+         user.setSalt(salt);
+         userService.add(user);
+         return Result.success();
     }
 
     @PostMapping("/forelogin")
